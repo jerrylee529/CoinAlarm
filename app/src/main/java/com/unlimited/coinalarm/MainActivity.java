@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, AlarmEditorActivity.class);
                 intent.putExtra("cc_id", alarmItem.getCc_id());
                 intent.putExtra("price", alarmItem.getPrice());
-                intent.putExtra("duration", alarmItem.getDuration());
+                intent.putExtra("change_rate", alarmItem.getChangeRate());
                 startActivityForResult(intent, 0);
             }
         });
@@ -181,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
         assert (alarmItem != null);
         Double price = data.getDoubleExtra("price", 0.00);
         alarmItem.setPrice(price);
+        Double changeRate = data.getDoubleExtra("change_rate", 0.00);
+        alarmItem.setChangeRate(changeRate);
 
         applicationData.saveItems();
 

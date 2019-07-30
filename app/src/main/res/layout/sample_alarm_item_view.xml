@@ -50,7 +50,7 @@
         android:id="@+id/list_item_table_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:stretchColumns="5">
+        android:stretchColumns="3">
         <TableRow
             android:id="@+id/stock_list_row">
             <View
@@ -74,7 +74,7 @@
                 />
             <TextView
                 android:id="@+id/item_price"
-                android:layout_width="80dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:textColor="#ff00ff"
                 android:layout_gravity="center"/>
@@ -83,7 +83,7 @@
                 />
             <TextView
                 android:id="@+id/item_alarm"
-                android:layout_width="80dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:textColor="#ff00ff"
                 android:layout_gravity="center"/>

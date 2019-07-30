@@ -9,6 +9,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "create table T_AlarmInfo("
                     + "cc_id varchar,"//id
                     + "price double,"//告警价格
+                    + "change_rate double,"//告警范围
                     + "duration integer,"//持续时间
                     + "image_id integer,"//图片id
                     + "is_on smallint)";//是否打开

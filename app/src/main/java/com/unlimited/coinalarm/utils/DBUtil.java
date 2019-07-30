@@ -7,6 +7,6 @@ public class DBUtil {
     public static final String TABLE_NAME = "T_AlarmInfo";
 
     public static SQLiteDatabase db(Context context) {
-        return new DBHelper(context, "alarminfo.db", null, 3).getWritableDatabase();
+        return new DBHelper(context, "alarminfo.db", null, 4).getWritableDatabase();
     }
 }

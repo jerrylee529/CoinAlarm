@@ -3,9 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <TableLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:stretchColumns="5">
+        android:stretchColumns="3">
         <TableRow
             android:id="@+id/list_header_row">
             <View style="@style/list_item_cell_seperator_layout"/>
@@ -23,6 +23,8 @@
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:padding="2dp"
                 />
             <View
@@ -31,9 +33,11 @@
             <TextView
                 android:id="@+id/list_header_last_price"
                 android:text="@string/last_price"
-                android:layout_width="80dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:padding="2dp"
                 />
             <View
@@ -42,9 +46,11 @@
             <TextView
                 android:id="@+id/list_header_alarm_price"
                 android:text="@string/alarm_price"
-                android:layout_width="80dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:padding="2dp"
                 />
             <View style="@style/list_item_cell_seperator_layout"/>
@@ -54,6 +60,8 @@
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:padding="2dp"
                 />
             <View style="@style/list_item_cell_seperator_layout"/>
