@@ -3,6 +3,8 @@
     package="com.unlimited.coinalarm">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:name=".data.ApplicationData"
@@ -24,6 +26,14 @@
         <activity android:name=".AlarmEditorActivity" />
 
         <service android:name=".okex.OkExQuotationService" />
+        <receiver android:name=".service.AlarmReceiver">
+            <intent-filter>
+                <!-- 注册开机广播地址-->
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

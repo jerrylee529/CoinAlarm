@@ -1,7 +1,5 @@
 package com.unlimited.coinalarm;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,9 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.unlimited.coinalarm.data.AlarmSetting;
 import com.unlimited.coinalarm.data.ApplicationData;
-import com.unlimited.coinalarm.data.SettingStore;
 import com.unlimited.coinalarm.okex.OkExQuotationService;
 
 import java.util.ArrayList;
@@ -66,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ApplicationData applicationData;
 
-    private BroadcastReceiver alarmReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver updateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction() == OkExQuotationService.QUOTATION_UPDATE_NOTIFICATION) {
@@ -91,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(OkExQuotationService.QUOTATION_UPDATE_NOTIFICATION);
         filter.addAction(OkExQuotationService.ALARM_NOTIFICATION);
-        registerReceiver(alarmReceiver, filter);
+        registerReceiver(updateReceiver, filter);
     }
 
     @Override
@@ -109,35 +105,50 @@ public class MainActivity extends AppCompatActivity {
 
         initListView();
 
-        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+        initMonitor();
 
-        PendingIntent pi = PendingIntent.getService(this, 0, new Intent(this, OkExQuotationService.class), PendingIntent.FLAG_CANCEL_CURRENT);
-        long now = System.currentTimeMillis();
-        am.setRepeating(AlarmManager.RTC_WAKEUP, now, 1000, pi);
+        //AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        //PendingIntent pi = PendingIntent.getService(this, 0, new Intent(this, OkExQuotationService.class), PendingIntent.FLAG_CANCEL_CURRENT);
+        //long now = System.currentTimeMillis();
+        //am.setRepeating(AlarmManager.RTC_WAKEUP, now, 1000, pi);
 
         //Intent intentOne = new Intent(this, OkExQuotationService.class);
         //startService(intentOne);
-
         registerReceiver();
+    }
+
+    private void initMonitor() {
+        final Button button = findViewById(R.id.btn_control);
+
+        button.setText(applicationData.getOn()?R.string.stop_monitor:R.string.start_monitor);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OkExQuotationService.execute(MainActivity.this, !applicationData.getOn());
+                applicationData.setOn(!applicationData.getOn());
+                button.setText(applicationData.getOn()?R.string.stop_monitor:R.string.start_monitor);
+            }
+        });
     }
 
     private void initListView() {
         //初始化Toast的主要作用是，在点击按钮是可以先立刻消除上一个toast
         //toast = Toast.makeText(getApplicationContext(), "", 0);
 
-        listView = (ListView) findViewById(R.id.list);
+        listView = findViewById(R.id.list);
 
-        simpleAdapter = new AlarmViewAdapter(this, applicationData.getAlarmSetting());
+        simpleAdapter = new AlarmViewAdapter(this, applicationData.getList());
 
         listView.setAdapter(simpleAdapter);//为ListView绑定适配器
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                AlarmSetting alarmSetting = applicationData.getAlarmSetting();
                 String key = (String) view.getTag();
                 assert (key != null);
-                AlarmSetting.AlarmItem alarmItem = alarmSetting.getList().get(key);
+                ApplicationData.AlarmItem alarmItem = applicationData.getList().get(key);
                 assert (alarmItem != null);
                 Intent intent = new Intent(MainActivity.this, AlarmEditorActivity.class);
                 intent.putExtra("cc_id", alarmItem.getCc_id());
@@ -152,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        unregisterReceiver(alarmReceiver);
+        unregisterReceiver(updateReceiver);
     }
 
     @Override
@@ -164,45 +175,24 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        AlarmSetting alarmSetting = applicationData.getAlarmSetting();
-        Map<String, AlarmSetting.AlarmItem> items = alarmSetting.getList();
+        Map<String, ApplicationData.AlarmItem> items = applicationData.getList();
         String key = data.getStringExtra("cc_id");
-        AlarmSetting.AlarmItem alarmItem = items.get(key);
+        ApplicationData.AlarmItem alarmItem = items.get(key);
         assert (alarmItem != null);
         Double price = data.getDoubleExtra("price", 0.00);
         alarmItem.setPrice(price);
 
-        SettingStore.getInstance(getApplicationContext()).save2DB(alarmSetting);
+        applicationData.saveItems();
 
         simpleAdapter.notifyDataSetChanged();
     }
 
     private void initApplicationData() {
-        SettingStore settingStore = SettingStore.getInstance(getApplicationContext());
-
-        AlarmSetting alarmSetting = settingStore.loadFromDB();
-
-        if (alarmSetting.getList() == null || alarmSetting.getList().size() <= 0) {
-            Map<String, AlarmSetting.AlarmItem> items = new HashMap<>();
-            for (int i = 0; i < cc_ids.length; i++) {
-                AlarmSetting.AlarmItem alarmItem = alarmSetting.newAlarmItem();
-                alarmItem.setCc_id(cc_ids[i]);
-                alarmItem.setName(cc_ids[i]);
-                alarmItem.setImageId(map_image_id.get(cc_ids[i]));
-                alarmItem.setDuration(0);
-                items.put(cc_ids[i], alarmItem);
-            }
-
-            alarmSetting.setList(items);
-
-            settingStore.save2DB(alarmSetting);
-        }
-
-        applicationData.setAlarmSetting(alarmSetting);
+        applicationData.loadItems();
     }
 
     private void initQuotation() {
-        Map<String, AlarmSetting.AlarmItem> items = applicationData.getList();
+        Map<String, ApplicationData.AlarmItem> items = applicationData.getList();
 
         for (String key : items.keySet()) {
             map_quotation.put(key, 0.00);
@@ -211,14 +201,14 @@ public class MainActivity extends AppCompatActivity {
 
     public class AlarmViewAdapter extends BaseAdapter {
         LayoutInflater mInflater;
-        AlarmSetting alarmSetting;
+        Map<String, ApplicationData.AlarmItem> items;
         List<String> list;
 
-        public AlarmViewAdapter(Context context, AlarmSetting alarmSetting) {
+        public AlarmViewAdapter(Context context, Map<String, ApplicationData.AlarmItem> items) {
             mInflater = LayoutInflater.from(context);
-            this.alarmSetting = alarmSetting;
+            this.items = items;
             list = new ArrayList<>();
-            for (String key : alarmSetting.getList().keySet()) {
+            for (String key : items.keySet()) {
                 list.add(key);
             }
         }
@@ -244,22 +234,22 @@ public class MainActivity extends AppCompatActivity {
             String key = list.get(position);
             view.setTag(key);
 
-            AlarmSetting.AlarmItem alarmItem = alarmSetting.getList().get(key);
+            ApplicationData.AlarmItem alarmItem = items.get(key);
 
-            ImageView item_img_view = (ImageView) view.findViewById(R.id.item_img);
+            ImageView item_img_view = view.findViewById(R.id.item_img);
             item_img_view.setImageResource(alarmItem.getImageId());
 
             // 设置textview中提示文本
-            TextView item_name_view = (TextView) view.findViewById(R.id.item_name);
-            item_name_view.setText(alarmItem.getName());
+            TextView item_name_view = view.findViewById(R.id.item_name);
+            item_name_view.setText(alarmItem.getCc_id());
 
-            TextView item_price_view = (TextView) view.findViewById(R.id.item_price);
+            TextView item_price_view = view.findViewById(R.id.item_price);
             item_price_view.setText("$" + map_quotation.get(key));
 
-            TextView item_alarm_view = (TextView) view.findViewById(R.id.item_alarm);
+            TextView item_alarm_view = view.findViewById(R.id.item_alarm);
             item_alarm_view.setText("$" + alarmItem.getPrice());
 
-            Button button = (Button) view.findViewById(R.id.item_switch);
+            Button button = view.findViewById(R.id.item_switch);
 
             button.setTag(key);
             button.setText(alarmItem.getOn() ? "ON" : "OFF");
@@ -267,13 +257,12 @@ public class MainActivity extends AppCompatActivity {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlarmSetting alarmSetting = applicationData.getAlarmSetting();
-                    Map<String, AlarmSetting.AlarmItem> itemMap = alarmSetting.getList();
+                    Map<String, ApplicationData.AlarmItem> itemMap = applicationData.getList();
                     String key = (String) v.getTag();
-                    AlarmSetting.AlarmItem alarmItem = itemMap.get(key);
+                    ApplicationData.AlarmItem alarmItem = itemMap.get(key);
                     alarmItem.setOn(!alarmItem.getOn());
                     ((Button) v).setText(alarmItem.getOn() ? "ON" : "OFF");
-                    SettingStore.getInstance(getApplicationContext()).save2DB(alarmSetting);
+                    applicationData.saveItems();
                 }
             });
 

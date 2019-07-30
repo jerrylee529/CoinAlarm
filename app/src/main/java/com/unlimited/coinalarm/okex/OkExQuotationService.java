@@ -1,14 +1,19 @@
 package com.unlimited.coinalarm.okex;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.unlimited.coinalarm.data.AlarmSetting;
 import com.unlimited.coinalarm.data.ApplicationData;
 import com.unlimited.coinalarm.okex.model.Ticker;
+import com.unlimited.coinalarm.service.AlarmReceiver;
 
 import org.apache.commons.compress.compressors.deflate64.Deflate64CompressorInputStream;
 
@@ -48,6 +53,19 @@ public class OkExQuotationService extends IntentService {
 
     public static final String QUOTATION_TICKER_URL_FORMAT = "https://www.okex.com/api/spot/v3/instruments/%s/ticker";
 
+    public static void execute(Context context, Boolean isOn) {
+        if (isOn) {
+            Intent intentOne = new Intent(context, OkExQuotationService.class);
+            context.startService(intentOne);
+        } else {
+            // 启动定时服务
+            AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent ia = new Intent(context, AlarmReceiver.class);
+            PendingIntent pi = PendingIntent.getBroadcast(context, 0, ia, 0);
+            manager.cancel(pi);
+        }
+    }
+
     public OkExQuotationService() {
         super("OkExQuotationService");
     }
@@ -68,12 +86,40 @@ public class OkExQuotationService extends IntentService {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        //启用前台服务，主要是startForeground()
+        //Notification notification = new Notification(R.drawable.queen2, "用电脑时间过长了！白痴！"
+        //        , System.currentTimeMillis());
+        /*
+        notification.(this, "快去休息！！！",
+                "一定保护眼睛,不然遗传给孩子，老婆跟别人跑啊。", null);
+                */
+        //设置通知默认效果
+        //notification.flags = Notification.FLAG_SHOW_LIGHTS;
+        //startForeground(1, notification);
+
+        // 启动定时服务
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        long triggerAtTime = SystemClock.elapsedRealtime() + 60 * 1000;
+
+        Intent ia = new Intent(this, AlarmReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0, ia, 0);
+
+        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.d(TAG, "handle intent");
+
         for (String instrument_id : map_instrumen_id.keySet()) {
             // 获取行情数据
             String jsonData = getQuotation(instrument_id);
@@ -103,7 +149,12 @@ public class OkExQuotationService extends IntentService {
     }
 
     private String getQuotation(String instrument_id) {
-        String jsonData = null;
+        String jsonData = "{\"instrument_id\": \"BTC-USDT\", \"last\": \"333.99\", \"best_bid\": \"333.98\", \"best_ask\": \"333.99\", \"high_24h\": \"0.193\"," +
+                "\"open_24h\": \"0.193\"," +
+                "\"low_24h\": \"333.98\"," +
+                "\"base_volume_24h\": \"5957.11914015\"," +
+                "\"quote_volume_24h\": \"5957.11914015\"," +
+                "\"timestamp\": \"2015-11-14T20:46:03.511Z\"}";
 
         String url = String.format(QUOTATION_TICKER_URL_FORMAT, instrument_id);
         Request request = new Request.Builder() //利用建造者模式创建Request对象
@@ -160,12 +211,12 @@ public class OkExQuotationService extends IntentService {
 
     private void alarm(String cc_id, Ticker ticker) {
         ApplicationData applicationData = (ApplicationData)getApplication();
-        Map<String, AlarmSetting.AlarmItem> map = applicationData.getList();
+        Map<String, ApplicationData.AlarmItem> map = applicationData.getList();
 
-        AlarmSetting.AlarmItem alarmItem = map.get(cc_id);
+        ApplicationData.AlarmItem alarmItem = map.get(cc_id);
         if (alarmItem != null && alarmItem.getOn()) {
             Double price = Double.parseDouble(ticker.getLast());
-            Double d = price - alarmItem.getPrice();
+            Double d = Math.abs(price - alarmItem.getPrice());
 
             if (d < 0.1) {
                 broadcastAlarm(cc_id, price);

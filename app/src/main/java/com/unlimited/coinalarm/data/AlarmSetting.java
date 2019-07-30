@@ -3,7 +3,16 @@ package com.unlimited.coinalarm.data;
 import java.util.Map;
 
 public class AlarmSetting {
-    private Map<String, AlarmItem> list;
+    private Map<String, AlarmItem> list; // 告警币种的列表
+
+    private Integer interval; // 后台计算的时间间隔， 单位：秒
+
+    private Boolean isOn; // 是否开启服务
+
+    public AlarmSetting() {
+        this.interval = 60;
+        this.isOn = false;
+    }
 
     public Map<String, AlarmItem> getList() {
         return list;
@@ -21,6 +30,22 @@ public class AlarmSetting {
         return  (list!=null)?list.size():0;
     }
 
+    public Integer getInterval() {
+        return interval;
+    }
+
+    public void setInterval(Integer interval) {
+        this.interval = interval;
+    }
+
+    public Boolean getOn() {
+        return isOn;
+    }
+
+    public void setOn(Boolean on) {
+        isOn = on;
+    }
+
     public class AlarmItem {
         private String cc_id; // 数字币标识
         private String name; // 数字币名称
@@ -30,6 +55,8 @@ public class AlarmSetting {
         private Boolean isOn; // 是否打开告警
 
         public AlarmItem() {
+            cc_id = "";
+            name = "";
             price = 0.00;
             duration = 5;
             imageId = 0;
