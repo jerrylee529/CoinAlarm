@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
     <!--
     <LinearLayout
@@ -34,14 +35,24 @@
 
     </LinearLayout>
     -->
-    <LinearLayout
+    <View
+        style="@style/list_item_seperator_layout"
+        />
+    <include
+        layout="@layout/alarm_list_header"
+        />
+    <View
+        style="@style/list_item_seperator_layout"
+        />
+    <ListView
+        android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <ListView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
 
+    <Button
+        android:id="@+id/btn_control"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/start_monitor" />
 </LinearLayout>

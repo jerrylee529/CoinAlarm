@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="5">
+        <TableRow
+            android:id="@+id/list_header_row">
+            <View style="@style/list_item_cell_seperator_layout"/>
+            <TextView
+                android:id="@+id/list_header_icon"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="4px"
+                />
+            <View style="@style/list_item_cell_seperator_layout"/>
+            <TextView
+                android:id="@+id/list_header_cc_id"
+                android:text="@string/cc_id"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="2dp"
+                />
+            <View
+                style="@style/list_item_cell_seperator_layout"
+                />
+            <TextView
+                android:id="@+id/list_header_last_price"
+                android:text="@string/last_price"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="2dp"
+                />
+            <View
+                style="@style/list_item_cell_seperator_layout"
+                />
+            <TextView
+                android:id="@+id/list_header_alarm_price"
+                android:text="@string/alarm_price"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="2dp"
+                />
+            <View style="@style/list_item_cell_seperator_layout"/>
+            <TextView
+                android:id="@+id/list_header_alarm_switch"
+                android:text="@string/alarm_switch"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="2dp"
+                />
+            <View style="@style/list_item_cell_seperator_layout"/>
+        </TableRow>
+    </TableLayout>
+</LinearLayout>

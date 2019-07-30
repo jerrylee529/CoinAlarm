@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:descendantFocusability="blocksDescendants">
-
+    <!--
     <ImageView android:id="@+id/item_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -45,6 +45,61 @@
         android:layout_gravity="center"
         android:layout_weight="1"
         android:text="ON"/>
+        -->
+    <TableLayout
+        android:id="@+id/list_item_table_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="5">
+        <TableRow
+            android:id="@+id/stock_list_row">
+            <View
+                style="@style/list_item_cell_seperator_layout"
+                />
+            <ImageView android:id="@+id/item_img"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="4px"/>
+            <View
+                style="@style/list_item_cell_seperator_layout"
+                />
+            <TextView
+                android:id="@+id/item_name"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+            <View
+                style="@style/list_item_cell_seperator_layout"
+                />
+            <TextView
+                android:id="@+id/item_price"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:textColor="#ff00ff"
+                android:layout_gravity="center"/>
+            <View
+                style="@style/list_item_cell_seperator_layout"
+                />
+            <TextView
+                android:id="@+id/item_alarm"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:textColor="#ff00ff"
+                android:layout_gravity="center"/>
+            <View
+                style="@style/list_item_cell_seperator_layout"
+                />
+            <Button android:id="@+id/item_switch"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="ON"/>
+            <View
+                style="@style/list_item_cell_seperator_layout"
+                />
+        </TableRow>
+    </TableLayout>
 </LinearLayout>
 
 <!--
