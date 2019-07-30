@@ -10,7 +10,6 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.unlimited.coinalarm.data.AlarmSetting;
 import com.unlimited.coinalarm.data.ApplicationData;
 import com.unlimited.coinalarm.okex.model.Ticker;
 import com.unlimited.coinalarm.service.AlarmReceiver;
@@ -34,8 +33,6 @@ public class OkExQuotationService extends IntentService {
     //private AlarmThread alarmThread;
 
     private OkHttpClient client;
-
-    private AlarmSetting alarmSetting;
 
     private static final Map<String, String> map_instrumen_id;
     static
@@ -216,9 +213,9 @@ public class OkExQuotationService extends IntentService {
         ApplicationData.AlarmItem alarmItem = map.get(cc_id);
         if (alarmItem != null && alarmItem.getOn()) {
             Double price = Double.parseDouble(ticker.getLast());
-            Double d = Math.abs(price - alarmItem.getPrice());
+            Double d = Math.abs((price - alarmItem.getPrice())*100/alarmItem.getPrice());
 
-            if (d < 0.1) {
+            if (d <= alarmItem.getChangeRate()) {
                 broadcastAlarm(cc_id, price);
             }
         }

@@ -41,10 +41,6 @@ public class ApplicationData extends Application {
 
     private Map<String, AlarmItem> list; // 告警币种的列表
 
-    private Integer interval; // 后台计算的时间间隔， 单位：秒
-
-    private Boolean isOn; // 是否开启服务
-
     public ApplicationData() {
         super();
         list = new HashMap<>();
@@ -89,7 +85,7 @@ public class ApplicationData extends Application {
 
     public Map<String, AlarmItem> saveItems() {
         for (AlarmItem item: getList().values()) {
-            Cursor cursor = DBUtil.db(this).query(DBUtil.TABLE_NAME, new String[]{"cc_id", "price", "duration", "image_id", "is_on"}, "cc_id=?", new String[]{item.getCc_id()}, null, null, null);
+            Cursor cursor = DBUtil.db(this).query(DBUtil.TABLE_NAME, new String[]{"cc_id", "price", "duration", "image_id", "is_on", "change_rate"}, "cc_id=?", new String[]{item.getCc_id()}, null, null, null);
             if (cursor.moveToNext()) {
                 ContentValues values = new ContentValues();
                 values.put("cc_id", item.getCc_id());
@@ -97,6 +93,7 @@ public class ApplicationData extends Application {
                 values.put("duration", item.getDuration());
                 values.put("image_id", item.getImageId());
                 values.put("is_on", item.getOn()?1:0);
+                values.put("change_rate", item.getChangeRate());
                 SQLiteDatabase db = DBUtil.db(this);
                 db.update(DBUtil.TABLE_NAME, values,"cc_id = ?", new String[]{item.getCc_id()});
             } else {
@@ -106,6 +103,7 @@ public class ApplicationData extends Application {
                 values.put("duration", item.getDuration());
                 values.put("image_id", item.getImageId());
                 values.put("is_on", item.getOn()?1:0);
+                values.put("change_rate", item.getDuration());
                 SQLiteDatabase db = DBUtil.db(this);
                 db.insert(DBUtil.TABLE_NAME, null, values);
             }
@@ -119,7 +117,7 @@ public class ApplicationData extends Application {
 
         //db.execSQL("delete from " + DBUtil.TABLE_NAME + ";");
 
-        Cursor cursor = db.query(DBUtil.TABLE_NAME, new String[]{"cc_id", "price", "duration", "image_id", "is_on"}, null, null, null, null, null);
+        Cursor cursor = db.query(DBUtil.TABLE_NAME, new String[]{"cc_id", "price", "duration", "image_id", "is_on", "change_rate"}, null, null, null, null, null);
 
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
@@ -128,12 +126,14 @@ public class ApplicationData extends Application {
                 Log.d(TAG, "duration--->" + cursor.getString(2));
                 Log.d(TAG, "image_id--->" + cursor.getInt(3));
                 Log.d(TAG, "is_on--->" + cursor.getString(4));
+                Log.d(TAG, "change_rate--->" + cursor.getString(5));
                 AlarmItem alarmItem = newAlarmItem();
                 alarmItem.setCc_id(cursor.getString(0));
                 alarmItem.setPrice(cursor.getDouble(1));
                 alarmItem.setDuration(cursor.getInt(2));
                 alarmItem.setImageId(cursor.getInt(3));
                 alarmItem.setOn((cursor.getShort(4)==1)?Boolean.TRUE:Boolean.FALSE);
+                alarmItem.setChangeRate(cursor.getDouble(5));
                 list.put(cursor.getString(0), alarmItem);
             }
         } else {
@@ -157,6 +157,7 @@ public class ApplicationData extends Application {
         private Integer duration; // 价格持续时间, 单位：秒， 备用
         private Integer imageId; // 图片id
         private Boolean isOn; // 是否打开告警
+        private Double changeRate; // 告警范围
 
         public AlarmItem() {
             cc_id = "";
@@ -214,6 +215,14 @@ public class ApplicationData extends Application {
         public void setOn(Boolean on) {
             isOn = on;
         }
+
+        public Double getChangeRate() {
+            return changeRate;
+        }
+
+        public void setChangeRate(Double changeRate) {
+            this.changeRate = changeRate;
+        }
     }
 
     private void loadDefault() {
@@ -223,6 +232,7 @@ public class ApplicationData extends Application {
             alarmItem.setName(cc_ids[i]);
             alarmItem.setImageId(map_image_id.get(cc_ids[i]));
             alarmItem.setDuration(0);
+            alarmItem.setChangeRate(0.0);
             list.put(cc_ids[i], alarmItem);
         }
     }
