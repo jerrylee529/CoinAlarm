@@ -9,4 +9,10 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="start_monitor">"Start"</string>
+    <string name="stop_monitor">"Stop"</string>
+    <string name="cc_id">"Token"</string>
+    <string name="last_price">"Last Price"</string>
+    <string name="alarm_price">"Alarm Price"</string>
+    <string name="alarm_switch">"Switch"</string>
 </resources>
